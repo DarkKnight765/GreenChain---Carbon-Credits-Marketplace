@@ -180,22 +180,21 @@ No environment variables needed for local development. Contract address is store
 
 ## 🚧 Known Limitations
 
-- Local JSON database (not production-ready)
+- Local JSON database (for demo only, not production)
 - Single contract deployment per browser session
 - No backend authentication (localStorage only)
 - Test network only (Sepolia)
 
-## 🤝 Contributing
+## 🌟 Future Improvements
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+- Integrate a real backend database (e.g., PostgreSQL, MongoDB) for production-ready storage
+- Add user authentication with JWT or OAuth
+- Email notifications for transactions
+- Admin dashboard for NGOs
+- Advanced filtering and search in marketplace
+- Support for ERC1155 multi-token standard
 
-## 📄 License
-
-MIT License
-
-## 👥 Authors
-
-Built as a blockchain carbon credit marketplace demonstration project.
+---
 
 ## 🔗 Links
 
