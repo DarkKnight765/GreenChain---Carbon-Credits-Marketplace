@@ -1,0 +1,59 @@
+{
+  "users": [
+    {
+      "id": 1766312662597,
+      "email": "nihalsharma765@gmail.com",
+      "password": "ok",
+      "role": "ngo"
+    },
+    {
+      "id": 1766315247346,
+      "email": "nihaleditz@gmail.com",
+      "password": "ok",
+      "role": "company"
+    }
+  ],
+  "listings": [
+    {
+      "id": 1766326499843,
+      "name": "test8",
+      "price": "0.00001",
+      "quantity": "0",
+      "tokenIds": [],
+      "sellerId": 1766312662597,
+      "isForSale": false
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1766326578627,
+      "listingId": 1766326499843,
+      "listingName": "test8",
+      "quantity": 1,
+      "pricePerUnit": "0.00001",
+      "buyerId": 1766315247346,
+      "sellerId": 1766312662597,
+      "buyerEmail": "nihaleditz@gmail.com",
+      "sellerEmail": "nihalsharma765@gmail.com",
+      "tokenIds": [
+        1
+      ],
+      "timestamp": "2025-12-21T14:16:18.627Z"
+    },
+    {
+      "id": 1766326613340,
+      "listingId": 1766326499843,
+      "listingName": "test8",
+      "quantity": 1,
+      "pricePerUnit": "0.00001",
+      "buyerId": 1766315247346,
+      "sellerId": 1766312662597,
+      "buyerEmail": "nihaleditz@gmail.com",
+      "sellerEmail": "nihalsharma765@gmail.com",
+      "tokenIds": [
+        2
+      ],
+      "timestamp": "2025-12-21T14:16:53.340Z"
+    }
+  ]
+}
