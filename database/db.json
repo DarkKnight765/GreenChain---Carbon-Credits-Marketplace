@@ -11,6 +11,18 @@
       "email": "nihaleditz@gmail.com",
       "password": "ok",
       "role": "company"
+    },
+    {
+      "id": 1772727342561,
+      "email": "",
+      "password": "",
+      "role": "ngo"
+    },
+    {
+      "id": 1772727407287,
+      "email": "drstrange2406ms@gmail.com",
+      "password": "ok123",
+      "role": "company"
     }
   ],
   "listings": [
