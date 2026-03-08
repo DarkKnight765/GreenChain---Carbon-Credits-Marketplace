@@ -2,8 +2,18 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
+import { motion } from "framer-motion";
 import abi from "../contracts/abi.json";
-import WalletConnect from "../components/WalletConnect";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { Badge } from "@/components/ui/badge";
+import { Leaf, Package, History, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+};
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -62,8 +72,6 @@ export default function Dashboard() {
     try {
       const res = await fetch("/api/transactions");
       const data = await res.json();
-
-      // Filter transactions for current user
       const filtered = data.filter(
         (tx) => tx.buyerId === user.id || tx.sellerId === user.id
       );
@@ -76,15 +84,12 @@ export default function Dashboard() {
   const fetchOwnedCredits = async () => {
     try {
       const owned = [];
-
-      // Get transactions to find tokens user bought
       const txRes = await fetch("/api/transactions");
       const allTransactions = await txRes.json();
       const userPurchases = allTransactions.filter(
         (tx) => tx.buyerId === user.id
       );
 
-      // Create map of tokenId -> transaction for getting listing names
       const tokenToTx = {};
       for (const tx of userPurchases) {
         if (tx.tokenIds && tx.tokenIds.length > 0) {
@@ -94,7 +99,6 @@ export default function Dashboard() {
         }
       }
 
-      // Check each token on blockchain
       for (const tokenId in tokenToTx) {
         try {
           const credit = await contract.carbonCredits(tokenId);
@@ -111,182 +115,152 @@ export default function Dashboard() {
           console.error(`Error checking token ${tokenId}:`, err);
         }
       }
-
       setOwnedCredits(owned);
     } catch (error) {
       console.error("Error fetching owned credits:", error);
     }
   };
 
-  if (!user) return <div className="container">Loading...</div>;
+  if (!user) return <div className="min-h-screen flex items-center justify-center bg-background">Loading...</div>;
 
   return (
-    <div className="container">
-      <h1>📊 Dashboard</h1>
-      <WalletConnect />
-      <p>
-        <strong>Role:</strong> {user.role.toUpperCase()} |{" "}
-        <strong>Email:</strong> {user.email}
-      </p>
-
-      {/* Owned Credits Section */}
-      {user.role === "company" && (
-        <div style={{ marginBottom: "3rem" }}>
-          <h2>🏆 My Owned Credits</h2>
-          {ownedCredits.length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              You don't own any carbon credits yet.
+    <div className="min-h-screen bg-background text-foreground font-outfit antialiased">
+      <Navbar />
+      <div className="pt-24 pb-16">
+        <div className="container mx-auto px-4">
+          <motion.div className="mb-8" {...fadeUp} transition={{ duration: 0.5 }}>
+            <h1 className="text-3xl sm:text-4xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground mt-2">
+              <Badge variant="outline" className="mr-2 uppercase">{user.role}</Badge> 
+              {user.email}
             </p>
-          ) : (
-            <div className="card-container">
-              {ownedCredits.map((credit, index) => (
-                <div key={index} className="card">
-                  <h3>{credit.listingName}</h3>
-                  <p>
-                    <strong>Token ID:</strong> #{credit.tokenId}
-                  </p>
-                  <p>
-                    <strong>Price:</strong> {credit.price} ETH
-                  </p>
-                  <p>
-                    <strong>Status:</strong>{" "}
-                    {credit.isForSale ? "Listed for Sale" : "In Portfolio"}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+          </motion.div>
 
-      {/* Active Listings Section - For NGOs */}
-      {user.role === "ngo" && (
-        <div style={{ marginBottom: "3rem" }}>
-          <h2>📦 My Active Listings</h2>
-          {listings.filter(
-            (l) => l.sellerId === user.id && l.tokenIds && l.tokenIds.length > 0
-          ).length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              You have no active listings. Create one to start selling!
-            </p>
-          ) : (
-            <div className="card-container">
-              {listings
-                .filter(
-                  (l) =>
-                    l.sellerId === user.id &&
-                    l.tokenIds &&
-                    l.tokenIds.length > 0
-                )
-                .map((listing) => {
-                  const tokenIds = listing.tokenIds || [];
-                  const firstTokenId = tokenIds.length > 0 ? tokenIds[0] : null;
-                  const credit =
-                    firstTokenId &&
-                    ownedCredits.find((c) => c.tokenId === firstTokenId);
-
-                  return (
-                    <div key={listing.id} className="card">
-                      <h3>{listing.name}</h3>
-                      <p>
-                        <strong>Price:</strong> {listing.price} ETH
-                      </p>
-                      <p>
-                        <strong>Available Quantity:</strong> {tokenIds.length}
-                      </p>
-                      <p>
-                        <strong>Token IDs:</strong> {tokenIds.join(", ")}
-                      </p>
-                      <p>
-                        <strong>Status:</strong>{" "}
-                        <span style={{ color: "#10b981" }}>✓ Active</span>
-                      </p>
+          {/* Owned Credits Section (Companies) */}
+          {user.role === "company" && (
+            <motion.section className="mb-12" {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }}>
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Leaf className="h-5 w-5 text-primary" /> My Owned Credits
+              </h2>
+              {ownedCredits.length === 0 ? (
+                <p className="text-muted-foreground italic bg-muted/30 p-4 rounded-xl">You don't own any carbon credits yet.</p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {ownedCredits.map((credit, index) => (
+                    <div key={index} className="glass-card rounded-2xl p-5">
+                      <h3 className="font-semibold text-foreground text-lg mb-2">{credit.listingName}</h3>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <p><strong>Token ID:</strong> #{credit.tokenId}</p>
+                        <p><strong>Price:</strong> {credit.price} ETH</p>
+                        <Badge className="mt-2" variant={credit.isForSale ? "outline" : "default"}>
+                          {credit.isForSale ? "Listed for Sale" : "In Portfolio"}
+                        </Badge>
+                      </div>
                     </div>
-                  );
-                })}
-            </div>
+                  ))}
+                </div>
+              )}
+            </motion.section>
           )}
-        </div>
-      )}
 
-      {/* Transaction History */}
-      <div>
-        <h2>
-          {user.role === "ngo" ? "📈 Sales History" : "🛒 Purchase History"}
-        </h2>
-        {transactions.length === 0 ? (
-          <p style={{ color: "#666", fontStyle: "italic" }}>
-            No transactions yet.
-          </p>
-        ) : (
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "1rem",
-              background: "white",
-              borderRadius: "8px",
-              overflow: "hidden",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  color: "white",
-                }}
-              >
-                <th style={{ padding: "1rem", textAlign: "left" }}>Date</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>Listing</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>Quantity</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  Price (ETH)
-                </th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  {user.role === "ngo" ? "Buyer" : "Seller"}
-                </th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  Total (ETH)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#f8f9fa")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "white")
-                  }
-                >
-                  <td style={{ padding: "1rem" }}>
-                    {new Date(tx.timestamp).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: "1rem" }}>{tx.listingName}</td>
-                  <td style={{ padding: "1rem" }}>{tx.quantity}</td>
-                  <td style={{ padding: "1rem" }}>{tx.pricePerUnit}</td>
-                  <td style={{ padding: "1rem" }}>
-                    {user.role === "ngo" ? tx.buyerEmail : tx.sellerEmail}
-                  </td>
-                  <td style={{ padding: "1rem", fontWeight: "bold" }}>
-                    {(
-                      parseFloat(tx.pricePerUnit) * parseInt(tx.quantity)
-                    ).toFixed(6)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          {/* Active Listings Section (NGOs) */}
+          {user.role === "ngo" && (
+            <motion.section className="mb-12" {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+              <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Package className="h-5 w-5 text-primary" /> My Active Listings
+              </h2>
+              {listings.filter((l) => l.sellerId === user.id && l.tokenIds && l.tokenIds.length > 0).length === 0 ? (
+                <p className="text-muted-foreground italic bg-muted/30 p-4 rounded-xl">You have no active listings. Create one to start selling!</p>
+              ) : (
+                <div className="glass-card rounded-2xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr className="border-b border-border bg-muted/20">
+                          <th className="text-left p-4 font-medium text-muted-foreground">Project</th>
+                          <th className="text-left p-4 font-medium text-muted-foreground">Available Qty</th>
+                          <th className="text-left p-4 font-medium text-muted-foreground">Price</th>
+                          <th className="text-left p-4 font-medium text-muted-foreground">Token IDs</th>
+                          <th className="text-left p-4 font-medium text-muted-foreground">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {listings
+                          .filter((l) => l.sellerId === user.id && l.tokenIds && l.tokenIds.length > 0)
+                          .map((listing) => (
+                          <tr key={listing.id} className="border-b border-border last:border-0 hover:bg-muted/10 transition-colors">
+                            <td className="p-4 font-medium text-foreground">{listing.name}</td>
+                            <td className="p-4 text-muted-foreground">{listing.tokenIds?.length || 0}</td>
+                            <td className="p-4 text-muted-foreground font-semibold">{listing.price} ETH</td>
+                            <td className="p-4 text-muted-foreground text-xs">{listing.tokenIds?.join(", ")}</td>
+                            <td className="p-4">
+                              <Badge className="bg-primary/10 text-primary border-primary/20">Active</Badge>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+            </motion.section>
+          )}
+
+          {/* Transaction History */}
+          <motion.section className="mb-12" {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>
+            <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
+              <History className="h-5 w-5 text-primary" /> 
+              {user.role === "ngo" ? "Sales History" : "Purchase History"}
+            </h2>
+            {transactions.length === 0 ? (
+              <p className="text-muted-foreground italic bg-muted/30 p-4 rounded-xl">No transactions yet.</p>
+            ) : (
+              <div className="glass-card rounded-2xl overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-border bg-muted/20">
+                        <th className="text-left p-4 font-medium text-muted-foreground">Date</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Type</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Listing</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Qty</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">Price (ETH)</th>
+                        <th className="text-left p-4 font-medium text-muted-foreground">{user.role === "ngo" ? "Buyer" : "Seller"}</th>
+                        <th className="text-left p-4 font-medium text-foreground">Total (ETH)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions.map((tx, index) => {
+                        // Determine if current user is buyer or seller
+                        const isBuyer = tx.buyerId === user.id;
+                        return (
+                          <tr key={index} className="border-b border-border last:border-0 hover:bg-muted/10 transition-colors">
+                            <td className="p-4 text-muted-foreground">{new Date(tx.timestamp).toLocaleDateString()}</td>
+                            <td className="p-4">
+                              <span className={`inline-flex items-center gap-1 text-xs font-medium ${isBuyer ? "text-primary" : "text-accent"}`}>
+                                {isBuyer ? <ArrowDownLeft className="h-3 w-3" /> : <ArrowUpRight className="h-3 w-3" />}
+                                {isBuyer ? "BUY" : "SELL"}
+                              </span>
+                            </td>
+                            <td className="p-4 font-medium text-foreground">{tx.listingName}</td>
+                            <td className="p-4 text-muted-foreground">{tx.quantity}</td>
+                            <td className="p-4 text-muted-foreground">{tx.pricePerUnit}</td>
+                            <td className="p-4 text-muted-foreground">{user.role === "ngo" ? tx.buyerEmail : tx.sellerEmail}</td>
+                            <td className="p-4 font-bold text-foreground">
+                              {(parseFloat(tx.pricePerUnit) * parseInt(tx.quantity)).toFixed(6)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+          </motion.section>
+        </div>
       </div>
+      <Footer />
     </div>
   );
 }
