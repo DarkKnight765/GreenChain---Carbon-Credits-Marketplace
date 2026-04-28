@@ -33,7 +33,7 @@ export default function WalletConnect() {
         if (window.ethereum.removeListener) {
           window.ethereum.removeListener(
             "accountsChanged",
-            handleAccountsChanged
+            handleAccountsChanged,
           );
           window.ethereum.removeListener("chainChanged", handleChainChanged);
         }
@@ -43,6 +43,19 @@ export default function WalletConnect() {
 
   const connect = async () => {
     try {
+      if (!window.ethereum) {
+        console.error("MetaMask not detected");
+        return;
+      }
+
+      // Ask for eth_accounts permission first so MetaMask opens account selection.
+      if (window.ethereum.request) {
+        await window.ethereum.request({
+          method: "wallet_requestPermissions",
+          params: [{ eth_accounts: {} }],
+        });
+      }
+
       // Activate MetaMask with Sepolia chain ID
       await metaMask.activate(11155111);
     } catch (error) {
@@ -58,6 +71,19 @@ export default function WalletConnect() {
       if (connector?.resetState) {
         await connector.resetState();
       }
+
+      // Best-effort revoke so next connect prompts account picker again.
+      if (window.ethereum?.request) {
+        try {
+          await window.ethereum.request({
+            method: "wallet_revokePermissions",
+            params: [{ eth_accounts: {} }],
+          });
+        } catch (revokeError) {
+          console.warn("Could not revoke wallet permissions", revokeError);
+        }
+      }
+
       // Clear any cached connection
       localStorage.removeItem("walletconnect");
       // Small delay before reload
@@ -103,23 +129,29 @@ export default function WalletConnect() {
   };
 
   return (
-    <div>
+    <div className="wallet-panel">
       {isActive ? (
         <div>
-          <p>
+          <p className="wallet-meta">
             Connected with{" "}
             <b>
               {account?.slice(0, 6)}...{account?.slice(-4)}
             </b>
           </p>
-          <p>Chain ID: {chainId}</p>
-          <button onClick={switchAccount} style={{ marginRight: "10px" }}>
-            Switch Account
-          </button>
-          <button onClick={disconnect}>Disconnect</button>
+          <p className="wallet-meta">Chain ID: {chainId}</p>
+          <div className="wallet-actions">
+            <button onClick={switchAccount} className="app-button warn">
+              Switch Account
+            </button>
+            <button onClick={disconnect} className="app-button danger">
+              Disconnect
+            </button>
+          </div>
         </div>
       ) : (
-        <button onClick={connect}>Connect Wallet</button>
+        <button onClick={connect} className="app-button">
+          Connect Wallet
+        </button>
       )}
     </div>
   );

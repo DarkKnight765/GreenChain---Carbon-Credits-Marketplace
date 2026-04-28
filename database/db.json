@@ -4,13 +4,45 @@
       "id": 1766312662597,
       "email": "nihalsharma765@gmail.com",
       "password": "ok",
-      "role": "ngo"
+      "role": "ngo",
+      "walletAddress": "0xf2d26aa6534799bcade94672312b7eecf2a9eff7",
+      "wallets": [
+        {
+          "address": "0xf2d26aa6534799bcade94672312b7eecf2a9eff7",
+          "linkedAt": "2026-04-28T00:00:00.000Z",
+          "lastConnectedAt": "2026-04-28T00:00:00.000Z",
+          "connectionCount": 1
+        }
+      ],
+      "walletHistory": [
+        {
+          "address": "0xf2d26aa6534799bcade94672312b7eecf2a9eff7",
+          "action": "linked",
+          "timestamp": "2026-04-28T00:00:00.000Z"
+        }
+      ]
     },
     {
       "id": 1766315247346,
       "email": "nihaleditz@gmail.com",
       "password": "ok",
-      "role": "company"
+      "role": "company",
+      "walletAddress": "0x4cb68e6007b173435ff842956d4e3b6e926401b2",
+      "wallets": [
+        {
+          "address": "0x4cb68e6007b173435ff842956d4e3b6e926401b2",
+          "linkedAt": "2026-04-28T00:00:00.000Z",
+          "lastConnectedAt": "2026-04-28T00:00:00.000Z",
+          "connectionCount": 1
+        }
+      ],
+      "walletHistory": [
+        {
+          "address": "0x4cb68e6007b173435ff842956d4e3b6e926401b2",
+          "action": "linked",
+          "timestamp": "2026-04-28T00:00:00.000Z"
+        }
+      ]
     }
   ],
   "listings": [
@@ -35,9 +67,7 @@
       "sellerId": 1766312662597,
       "buyerEmail": "nihaleditz@gmail.com",
       "sellerEmail": "nihalsharma765@gmail.com",
-      "tokenIds": [
-        1
-      ],
+      "tokenIds": [1],
       "timestamp": "2025-12-21T14:16:18.627Z"
     },
     {
@@ -50,10 +80,21 @@
       "sellerId": 1766312662597,
       "buyerEmail": "nihaleditz@gmail.com",
       "sellerEmail": "nihalsharma765@gmail.com",
-      "tokenIds": [
-        2
-      ],
+      "tokenIds": [2],
       "timestamp": "2025-12-21T14:16:53.340Z"
+    },
+    {
+      "id": 1777378568893,
+      "listingId": 1766326499843,
+      "listingName": "test8",
+      "quantity": 1,
+      "pricePerUnit": "0.00001",
+      "buyerId": 1766315247346,
+      "sellerId": 1766312662597,
+      "buyerEmail": "nihaleditz@gmail.com",
+      "sellerEmail": "nihalsharma765@gmail.com",
+      "tokenIds": [2],
+      "timestamp": "2026-04-28T12:16:08.893Z"
     }
   ]
 }
