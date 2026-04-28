@@ -5,6 +5,7 @@ import { Web3ReactProvider, useWeb3React } from "@web3-react/core";
 import { metaMask, hooks } from "./utils/web3";
 import { useRouter } from "next/router";
 import WalletChecker from "../components/WalletChecker";
+import ProfileMenu from "../components/ProfileMenu";
 
 const connectors = [[metaMask, hooks]];
 
@@ -24,6 +25,11 @@ function MyApp({ Component, pageProps }) {
       }
     }
   }, [router.pathname]);
+
+  const updateUser = (nextUser) => {
+    setUser(nextUser);
+    localStorage.setItem("user", JSON.stringify(nextUser));
+  };
 
   const logout = () => {
     localStorage.removeItem("user");
@@ -66,23 +72,11 @@ function MyApp({ Component, pageProps }) {
         </div>
 
         <div className="nav-user">
-          {user ? (
-            <>
-              <span className="user-info">
-                {user.email} <span className="role-badge">{user.role}</span>
-              </span>
-              <button onClick={logout}>Logout</button>
-            </>
-          ) : (
-            <>
-              <Link legacyBehavior href="/login">
-                <a>Login</a>
-              </Link>
-              <Link legacyBehavior href="/register">
-                <a className="register-btn">Register</a>
-              </Link>
-            </>
-          )}
+          <ProfileMenu
+            user={user}
+            onLogout={logout}
+            onUserUpdate={updateUser}
+          />
         </div>
       </nav>
       <WalletChecker user={user} />

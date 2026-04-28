@@ -1,8 +1,6 @@
-
-import Head from 'next/head'
-import WalletConnect from '../components/WalletConnect'
-import styles from '../styles/Home.module.css'
-import Link from 'next/link'
+import Head from "next/head";
+import styles from "../styles/Home.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -15,9 +13,7 @@ export default function Home() {
 
       <main className={styles.main}>
         <div className={styles.hero}>
-          <h1 className={styles.title}>
-            Welcome to GreenChain!
-          </h1>
+          <h1 className={styles.title}>Welcome to GreenChain!</h1>
           <p className={styles.description}>
             The transparent and secure marketplace for carbon credits.
           </p>
@@ -53,9 +49,7 @@ export default function Home() {
           <h2>Featured Listings</h2>
           {/* Add featured listings here */}
         </div>
-
-        <WalletConnect />
       </main>
     </div>
-  )
+  );
 }

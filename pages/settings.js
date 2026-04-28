@@ -30,7 +30,7 @@ export default function Settings() {
     const walletKey = `wallet_${user.email}`;
     localStorage.removeItem(walletKey);
     alert(
-      `✅ Wallet association cleared for ${user.email}!\n\nPlease disconnect and reconnect with the correct MetaMask account.`
+      `✅ Wallet association cleared for ${user.email}!\n\nPlease disconnect and reconnect with the correct MetaMask account.`,
     );
   };
 
@@ -40,86 +40,45 @@ export default function Settings() {
     <div className="container">
       <h1>⚙️ Settings</h1>
 
-      <div className="card" style={{ marginBottom: "2rem" }}>
+      <div className="card settings-card">
         <h2>Contract Address</h2>
         <p>Save the address of your deployed contract:</p>
         <input
+          className="settings-input"
           type="text"
           placeholder="Contract Address"
           value={contractAddress}
           onChange={(e) => setContractAddress(e.target.value)}
-          style={{
-            width: "100%",
-            padding: "0.75rem",
-            marginBottom: "1rem",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            fontFamily: "monospace",
-            fontSize: "0.9em",
-          }}
         />
-        <button
-          onClick={handleSave}
-          style={{
-            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            color: "white",
-            padding: "0.75rem 1.5rem",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
-        >
+        <button onClick={handleSave} className="app-button">
           Save Address
         </button>
       </div>
 
-      <div
-        className="card"
-        style={{ marginBottom: "2rem", borderLeft: "4px solid #f59e0b" }}
-      >
-        <h2>🔄 Reset Wallet Association</h2>
+      <div className="card settings-card settings-highlight">
+        <h2>👤 Wallets & Profile</h2>
         <p>
           <strong>Current Account:</strong> {user.email} ({user.role})
         </p>
-        <p style={{ color: "#666", fontSize: "0.9em" }}>
-          If you're seeing a warning about using the wrong wallet, click below
-          to reset the saved wallet for this account. Then disconnect and
-          reconnect with the correct MetaMask account.
+        <p className="settings-tip">
+          You can link multiple wallets to this account now. Open your profile
+          to manage wallet history and review linked addresses.
         </p>
         <button
-          onClick={handleResetWallet}
-          style={{
-            background: "linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)",
-            color: "white",
-            padding: "0.75rem 1.5rem",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontWeight: "bold",
-          }}
+          onClick={() => router.push("/profile")}
+          className="app-button warn"
         >
-          🔄 Reset Wallet
+          Open Profile
         </button>
       </div>
 
-      <div
-        className="card"
-        style={{ background: "#f0fdf4", borderLeft: "4px solid #10b981" }}
-      >
+      <div className="card settings-guide">
         <h2>ℹ️ Wallet Guide</h2>
-        <ul style={{ lineHeight: "1.8", color: "#333" }}>
-          <li>
-            <strong>NGO Account:</strong> Use MetaMask Account 1
-          </li>
-          <li>
-            <strong>Company Account:</strong> Use MetaMask Account 2
-          </li>
-          <li>Each email address is linked to ONE wallet forever</li>
-          <li>If you use the wrong wallet, the system will warn you</li>
-          <li>
-            Use the "Reset Wallet" button above to change which wallet is linked
-          </li>
+        <ul className="settings-list">
+          <li>Each email address can link multiple wallets over time</li>
+          <li>Wallets already linked to a different user are blocked</li>
+          <li>See your wallet connection history in the Profile page</li>
+          <li>Use the Profile page to review and manage linked wallets</li>
         </ul>
       </div>
     </div>

@@ -28,8 +28,10 @@ function normalizeUser(user) {
         ]
       : [];
 
+  const { password, ...safeUser } = user;
+
   return {
-    ...user,
+    ...safeUser,
     walletAddress,
     wallets,
     walletHistory: Array.isArray(user.walletHistory) ? user.walletHistory : [],
@@ -37,18 +39,21 @@ function normalizeUser(user) {
 }
 
 export default function handler(req, res) {
-  if (req.method === "POST") {
-    const { email, password } = req.body;
-    const db = readDB();
-    const user = db.users.find(
-      (user) => user.email === email && user.password === password,
-    );
-    if (user) {
-      res.status(200).json(normalizeUser(user));
-    } else {
-      res.status(401).json({ message: "Invalid credentials" });
-    }
-  } else {
-    res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== "GET") {
+    return res.status(405).json({ message: "Method not allowed" });
   }
+
+  const { userId } = req.query;
+  if (!userId) {
+    return res.status(400).json({ message: "userId required" });
+  }
+
+  const db = readDB();
+  const user = db.users.find((entry) => String(entry.id) === String(userId));
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json(normalizeUser(user));
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 import abi from "../contracts/abi.json";
-import WalletConnect from "../components/WalletConnect";
 import { useWeb3React } from "@web3-react/core";
 
 export default function Market() {
@@ -38,7 +37,7 @@ export default function Market() {
         const loadedContract = new ethers.Contract(
           contractAddress,
           abi,
-          signer
+          signer,
         );
         setContract(loadedContract);
       }
@@ -51,7 +50,7 @@ export default function Market() {
     console.log("Fetching status for", listings.length, "listings");
     console.log(
       "Using contract address:",
-      localStorage.getItem("contractAddress")
+      localStorage.getItem("contractAddress"),
     );
     for (const listing of listings) {
       try {
@@ -72,7 +71,7 @@ export default function Market() {
         console.warn(
           "Unable to fetch on-chain credit for listing",
           listing.id,
-          error
+          error,
         );
       }
     }
@@ -107,7 +106,7 @@ export default function Market() {
     const availableTokenIds = listing.tokenIds || [];
     if (quantityToBuy > availableTokenIds.length) {
       alert(
-        `Only ${availableTokenIds.length} available. Cannot buy ${quantityToBuy}.`
+        `Only ${availableTokenIds.length} available. Cannot buy ${quantityToBuy}.`,
       );
       return;
     }
@@ -143,7 +142,7 @@ export default function Market() {
 
           if (account && owner.toLowerCase() === account.toLowerCase()) {
             alert(
-              "You cannot buy your own credit. Please switch to a different MetaMask account (Account 2 or another wallet) to test buying."
+              "You cannot buy your own credit. Please switch to a different MetaMask account (Account 2 or another wallet) to test buying.",
             );
             return;
           }
@@ -200,7 +199,7 @@ export default function Market() {
         if (!dbRes.ok) {
           console.error("DB update failed:", await dbRes.json());
           alert(
-            "Warning: Purchase recorded but database update failed. Refresh page."
+            "Warning: Purchase recorded but database update failed. Refresh page.",
           );
         }
 
@@ -213,8 +212,8 @@ export default function Market() {
                   tokenIds: remainingTokenIds,
                   quantity: newQuantity.toString(),
                 }
-              : l
-          )
+              : l,
+          ),
         );
 
         // Clear buy quantity input
@@ -246,7 +245,7 @@ export default function Market() {
             `Insufficient funds in your wallet.\n\n` +
               `Your account: ${account}\n` +
               `You need ETH to pay for gas + the credit price.\n\n` +
-              `Get free Sepolia ETH from: https://sepoliafaucet.com/`
+              `Get free Sepolia ETH from: https://sepoliafaucet.com/`,
           );
         } else {
           alert("Error buying credit. Check console for details.");
@@ -254,7 +253,7 @@ export default function Market() {
       }
     } else {
       alert(
-        "Please connect your wallet and make sure the contract is deployed."
+        "Please connect your wallet and make sure the contract is deployed.",
       );
     }
   };
@@ -287,7 +286,7 @@ export default function Market() {
         const tx = await contract.updateCredit(
           tokenId,
           ethers.utils.parseEther(priceValue.toString()),
-          true
+          true,
         );
         await tx.wait();
       }
@@ -319,8 +318,8 @@ export default function Market() {
                 price: priceValue.toString(),
                 quantity: quantity.toString(),
               }
-            : l
-        )
+            : l,
+        ),
       );
 
       setOnchainStatus((prev) => ({
@@ -363,7 +362,7 @@ export default function Market() {
       // Mint new tokens for relisting
       for (let i = 0; i < qty; i++) {
         const tx = await contract.createCredit(
-          ethers.utils.parseEther(priceValue.toString())
+          ethers.utils.parseEther(priceValue.toString()),
         );
         const receipt = await tx.wait();
         const tokenId = receipt.events[0].args.tokenId.toNumber();
@@ -406,12 +405,12 @@ export default function Market() {
                 price: priceValue.toString(),
                 isForSale: true,
               }
-            : l
-        )
+            : l,
+        ),
       );
 
       alert(
-        `Relisted successfully! Minted ${qty} new token(s) at ${priceValue} ETH each.`
+        `Relisted successfully! Minted ${qty} new token(s) at ${priceValue} ETH each.`,
       );
 
       // Refresh on-chain status
@@ -425,7 +424,6 @@ export default function Market() {
   return (
     <div className="container">
       <h1>🌱 Carbon Credit Marketplace</h1>
-      <WalletConnect />
 
       {/* AVAILABLE FOR SALE */}
       <h2>Available Credits</h2>
@@ -450,12 +448,12 @@ export default function Market() {
                   credit,
                   owner,
                   ownerMatches: owner?.toLowerCase() === account.toLowerCase(),
-                }
+                },
               );
               if (owner && owner.toLowerCase() === account.toLowerCase()) {
                 console.log(
                   "Filtered out listing (user is owner):",
-                  listing.id
+                  listing.id,
                 );
                 return false; // Don't show if user is the seller
               }
@@ -467,7 +465,7 @@ export default function Market() {
             "Total listings:",
             listings.length,
             "Filtered:",
-            filtered.length
+            filtered.length,
           );
           return filtered;
         })().map((listing) => {
@@ -506,10 +504,8 @@ export default function Market() {
               <p>Quantity: {listing.quantity}</p>
               <p>Seller ID: {listing.sellerId}</p>
 
-
-
               {credit && isForSale ? (
-                <div style={{ display: "flex", gap: "0.5rem" }}>
+                <div className="inline-buy">
                   <input
                     type="number"
                     min="1"
@@ -522,12 +518,6 @@ export default function Market() {
                         [listing.id]: e.target.value,
                       }))
                     }
-                    style={{
-                      flex: "0 0 60px",
-                      padding: "0.5rem",
-                      borderRadius: "4px",
-                      border: "1px solid #ddd",
-                    }}
                   />
                   <button
                     className="buy-button"
@@ -556,13 +546,7 @@ export default function Market() {
 
               {isOwner && credit && user && user.role === "ngo" && (
                 <div className="relist-form">
-                  <p
-                    style={{
-                      fontSize: "0.85em",
-                      color: "#666",
-                      margin: "0 0 0.5rem 0",
-                    }}
-                  >
+                  <p className="relist-label">
                     {isForSale ? "✏️ Edit Listing" : "🔄 Relist Item"}
                   </p>
                   <input
@@ -602,13 +586,7 @@ export default function Market() {
                 !isForSale &&
                 user &&
                 user.role !== "ngo" && (
-                  <p
-                    style={{
-                      color: "#e74c3c",
-                      fontSize: "0.85em",
-                      fontWeight: "bold",
-                    }}
-                  >
+                  <p className="owner-note">
                     ⛔ Only NGO sellers can relist credits
                   </p>
                 )}
@@ -619,14 +597,14 @@ export default function Market() {
 
       {/* MY LISTINGS (for NGO owners to see sold items and relist) */}
       {user && user.role === "ngo" && (
-        <div style={{ marginTop: "3rem" }}>
+        <div className="section-block">
           <h2>My Listings (Sold Out)</h2>
           <div className="card-container">
             {listings
               .filter(
                 (listing) =>
                   listing.sellerId === user.id &&
-                  (!listing.tokenIds || listing.tokenIds.length === 0)
+                  (!listing.tokenIds || listing.tokenIds.length === 0),
               )
               .map((listing) => {
                 return (
@@ -637,15 +615,7 @@ export default function Market() {
                     <p>Seller ID: {listing.sellerId}</p>
 
                     <div className="relist-form">
-                      <p
-                        style={{
-                          fontSize: "0.85em",
-                          color: "#666",
-                          margin: "0 0 0.5rem 0",
-                        }}
-                      >
-                        🔄 Relist Item
-                      </p>
+                      <p className="relist-label">🔄 Relist Item</p>
                       <input
                         type="number"
                         step="0.0001"
@@ -672,18 +642,7 @@ export default function Market() {
                       />
                       <button
                         onClick={() => handleRelistWithNewTokens(listing)}
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                          color: "white",
-                          padding: "0.75rem 1.5rem",
-                          border: "none",
-                          borderRadius: "8px",
-                          cursor: "pointer",
-                          fontSize: "0.9em",
-                          fontWeight: "bold",
-                          transition: "transform 0.2s",
-                        }}
+                        className="submit-button"
                       >
                         Relist with New Tokens
                       </button>
@@ -694,9 +653,9 @@ export default function Market() {
             {listings.filter(
               (listing) =>
                 listing.sellerId === user.id &&
-                (!listing.tokenIds || listing.tokenIds.length === 0)
+                (!listing.tokenIds || listing.tokenIds.length === 0),
             ).length === 0 && (
-              <p style={{ color: "#666", fontStyle: "italic" }}>
+              <p className="muted-text">
                 No sold-out listings. All your items are still available!
               </p>
             )}

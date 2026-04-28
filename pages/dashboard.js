@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import abi from "../contracts/abi.json";
-import WalletConnect from "../components/WalletConnect";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -31,7 +30,7 @@ export default function Dashboard() {
         const loadedContract = new ethers.Contract(
           contractAddress,
           abi,
-          signer
+          signer,
         );
         setContract(loadedContract);
       }
@@ -65,7 +64,7 @@ export default function Dashboard() {
 
       // Filter transactions for current user
       const filtered = data.filter(
-        (tx) => tx.buyerId === user.id || tx.sellerId === user.id
+        (tx) => tx.buyerId === user.id || tx.sellerId === user.id,
       );
       setTransactions(filtered);
     } catch (error) {
@@ -81,7 +80,7 @@ export default function Dashboard() {
       const txRes = await fetch("/api/transactions");
       const allTransactions = await txRes.json();
       const userPurchases = allTransactions.filter(
-        (tx) => tx.buyerId === user.id
+        (tx) => tx.buyerId === user.id,
       );
 
       // Create map of tokenId -> transaction for getting listing names
@@ -123,20 +122,17 @@ export default function Dashboard() {
   return (
     <div className="container">
       <h1>📊 Dashboard</h1>
-      <WalletConnect />
-      <p>
+      <p className="page-intro">
         <strong>Role:</strong> {user.role.toUpperCase()} |{" "}
         <strong>Email:</strong> {user.email}
       </p>
 
       {/* Owned Credits Section */}
       {user.role === "company" && (
-        <div style={{ marginBottom: "3rem" }}>
+        <div className="section-block">
           <h2>🏆 My Owned Credits</h2>
           {ownedCredits.length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
-              You don't own any carbon credits yet.
-            </p>
+            <p className="muted-text">You don't own any carbon credits yet.</p>
           ) : (
             <div className="card-container">
               {ownedCredits.map((credit, index) => (
@@ -161,12 +157,13 @@ export default function Dashboard() {
 
       {/* Active Listings Section - For NGOs */}
       {user.role === "ngo" && (
-        <div style={{ marginBottom: "3rem" }}>
+        <div className="section-block">
           <h2>📦 My Active Listings</h2>
           {listings.filter(
-            (l) => l.sellerId === user.id && l.tokenIds && l.tokenIds.length > 0
+            (l) =>
+              l.sellerId === user.id && l.tokenIds && l.tokenIds.length > 0,
           ).length === 0 ? (
-            <p style={{ color: "#666", fontStyle: "italic" }}>
+            <p className="muted-text">
               You have no active listings. Create one to start selling!
             </p>
           ) : (
@@ -176,7 +173,7 @@ export default function Dashboard() {
                   (l) =>
                     l.sellerId === user.id &&
                     l.tokenIds &&
-                    l.tokenIds.length > 0
+                    l.tokenIds.length > 0,
                 )
                 .map((listing) => {
                   const tokenIds = listing.tokenIds || [];
@@ -199,7 +196,7 @@ export default function Dashboard() {
                       </p>
                       <p>
                         <strong>Status:</strong>{" "}
-                        <span style={{ color: "#10b981" }}>✓ Active</span>
+                        <span className="status-active">✓ Active</span>
                       </p>
                     </div>
                   );
@@ -215,76 +212,40 @@ export default function Dashboard() {
           {user.role === "ngo" ? "📈 Sales History" : "🛒 Purchase History"}
         </h2>
         {transactions.length === 0 ? (
-          <p style={{ color: "#666", fontStyle: "italic" }}>
-            No transactions yet.
-          </p>
+          <p className="muted-text">No transactions yet.</p>
         ) : (
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              marginTop: "1rem",
-              background: "white",
-              borderRadius: "8px",
-              overflow: "hidden",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  color: "white",
-                }}
-              >
-                <th style={{ padding: "1rem", textAlign: "left" }}>Date</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>Listing</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>Quantity</th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  Price (ETH)
-                </th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  {user.role === "ngo" ? "Buyer" : "Seller"}
-                </th>
-                <th style={{ padding: "1rem", textAlign: "left" }}>
-                  Total (ETH)
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((tx, index) => (
-                <tr
-                  key={index}
-                  style={{
-                    borderBottom: "1px solid #eee",
-                    transition: "background 0.2s",
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.background = "#f8f9fa")
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.background = "white")
-                  }
-                >
-                  <td style={{ padding: "1rem" }}>
-                    {new Date(tx.timestamp).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: "1rem" }}>{tx.listingName}</td>
-                  <td style={{ padding: "1rem" }}>{tx.quantity}</td>
-                  <td style={{ padding: "1rem" }}>{tx.pricePerUnit}</td>
-                  <td style={{ padding: "1rem" }}>
-                    {user.role === "ngo" ? tx.buyerEmail : tx.sellerEmail}
-                  </td>
-                  <td style={{ padding: "1rem", fontWeight: "bold" }}>
-                    {(
-                      parseFloat(tx.pricePerUnit) * parseInt(tx.quantity)
-                    ).toFixed(6)}
-                  </td>
+          <div className="table-shell">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Listing</th>
+                  <th>Quantity</th>
+                  <th>Price (ETH)</th>
+                  <th>{user.role === "ngo" ? "Buyer" : "Seller"}</th>
+                  <th>Total (ETH)</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {transactions.map((tx, index) => (
+                  <tr key={index}>
+                    <td>{new Date(tx.timestamp).toLocaleDateString()}</td>
+                    <td>{tx.listingName}</td>
+                    <td>{tx.quantity}</td>
+                    <td>{tx.pricePerUnit}</td>
+                    <td>
+                      {user.role === "ngo" ? tx.buyerEmail : tx.sellerEmail}
+                    </td>
+                    <td>
+                      {(
+                        parseFloat(tx.pricePerUnit) * parseInt(tx.quantity)
+                      ).toFixed(6)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
